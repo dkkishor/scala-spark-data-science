@@ -14,9 +14,7 @@
 # Spark
 * Distributed Cluster Processing System (parallel data processing framework) with Driver (Leader) & Executor (Worker).
 * Big data platform written in Scala. Spark also works with Python, Java, and R.
-* Spark Worker
-* Spark Cluster Manager
-* Solves the issue with Hadoop MapReduce where the disk reads & writes are very high.
+* Solves the issue with Hadoop MapReduce where the disk reads & writes are very high. Spark Pipelining (perform as many tasks as possible before writing) & Shuffle persistence (writes to file when data needs to be moved across nodes & reused)
 * Reuses data by caching it in memory across the cluster.
 * Unified engine for processing big data workloads - Replacing varios Apache products (Hadoop, Storm, Impala, Drill, Mahout, Giraph)
 * Advantages
@@ -25,8 +23,8 @@
   * Compact code execution using Tungsten executon engine - Uses whole stage code geenration.
   * Stores immediate results in memory.
   * Resilient Distributed Dataset (RDD) data structure at API core for simpplified programming upon which higer abstractions are built.
-  * Supports batch processing to Streaming
-  * Storage is decoupled from compute.
+  * API's: Higher-level: DataFrames & Datasets, Lower-level: RDDs
+  * Supports batch processing to Streaming. Storage is decoupled from compute.
   * Can read from many data sources like HDFS, Hive, Cassandra, MongoDB, MySQL.
   * Spark Connectors can connect to many systems, external data sources, performance monitors.
 * Components
@@ -34,3 +32,14 @@
   * Structured Streaming
   * MLlib
   * GraphX
+* Architecture
+  * Driver - Heart of the Spark app. Analyzes, Distributes and schedules work among executors. Converts Operations into DAG components.
+  * SparkSession - Driver accesses distributed components of the cluster(executrs & cluster manager) using SparkSession. Read data from sources and write DataFrames & Datasets.
+  * Executors - Executes code and report the status back to driver. Data Locality (tasks work on data in close proximity) reduces network bandwidth.
+  * Cluster Manager - Manages physical resources of cluster - Local, Built-in Stand Alone, Hadoop YARN, Kubernetes, Apache Mesos. Executor Modes - Client (Client machine responsible for Driver) Vs. Cluster (Driver & Executor inside the cluster)
+* App Life Cycle: spark-submit -> triggers driver process or RM -> executes user code -> SparkSession -> SparkCluster (driver & executor) -> SparkSession talks to Cluster Manager Daemon or RM -> Driver assigns tasks to Executor
+* Spark App - App -> Job -> DAG of Stages -> Task -> Executor
+  * Transformations - Lazily Evaluated. Business Logic. Changes DF/DS without alterting original data. Narrow transformation - One I/P to One O/P (map, union, filter). Wide Transformation - One I/P to Many O/P (groupByKey, distinct, join)
+  * Actions - Triggers computation on an RDD. Immediately Evaluated. Eg: show, take, collect, count, save.
+* spark-shell / spark-submit -> Spark checks correctness -> Converts code to unresolved logical plan -> Resolved plan through Catalyst engine -> Planned for physical execution after evaluating the cost
+* Spark Job - DAC of stages -> spark engine starts new Shuffle Operation for each stage -> Shuffle map & result tasks -> one task per partition
