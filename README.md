@@ -38,7 +38,7 @@
   * Executors - Executes code and report the status back to driver. Data Locality (tasks work on data in close proximity) reduces network bandwidth.
   * Cluster Manager - Manages physical resources of cluster - Local, Built-in Stand Alone, Hadoop YARN, Kubernetes, Apache Mesos. Executor Modes - Client (Client machine responsible for Driver) Vs. Cluster (Driver & Executor inside the cluster)
 * App Life Cycle: spark-submit -> triggers driver process or RM -> executes user code -> SparkSession -> SparkCluster (driver & executor) -> SparkSession talks to Cluster Manager Daemon or RM -> Driver assigns tasks to Executor
-* Spark App - App -> Job -> DAG of Stages -> Task -> Executor
+* Spark App - App -> Job -> DAG Scheduler -> DAG of Stages -> Task -> -> Task Scheduler (Process-local, Node-local, Rack-local, Arbitrary nonlocal) -> Schedular Backend -> Executor -> Deserialize Task code -> execute code in JVM -> Serialize result.
   * Transformations - Lazily Evaluated. Business Logic. Changes DF/DS without alterting original data. Narrow transformation - One I/P to One O/P (map, union, filter). Wide Transformation - One I/P to Many O/P (groupByKey, distinct, join)
   * Actions - Triggers computation on an RDD. Immediately Evaluated. Eg: show, take, collect, count, save.
 * spark-shell / spark-submit -> Spark checks correctness -> Converts code to unresolved logical plan -> Resolved plan through Catalyst engine -> Planned for physical execution after evaluating the cost
